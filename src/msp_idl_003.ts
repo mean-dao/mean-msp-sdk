@@ -1,5 +1,5 @@
 export type Msp = {
-  "version": "2.5.2",
+  "version": "2.5.3",
   "name": "msp",
   "instructions": [
     {
@@ -1068,12 +1068,7 @@ export type Msp = {
         },
         {
           "name": "name",
-          "type": {
-            "array": [
-              "u8",
-              32
-            ]
-          },
+          "type": "string",
           "index": false
         },
         {
@@ -1509,7 +1504,7 @@ export type Msp = {
 };
 
 export const IDL: Msp = {
-  "version": "2.5.2",
+  "version": "2.5.3",
   "name": "msp",
   "instructions": [
     {
@@ -2578,12 +2573,7 @@ export const IDL: Msp = {
         },
         {
           "name": "name",
-          "type": {
-            "array": [
-              "u8",
-              32
-            ]
-          },
+          "type": "string",
           "index": false
         },
         {

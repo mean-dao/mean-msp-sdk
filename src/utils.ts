@@ -12,7 +12,7 @@ import {
   SystemProgram, 
   AccountInfo, 
   ParsedTransactionWithMeta} from "@solana/web3.js";
-import { BN, BorshInstructionCoder, Idl, Program } from "@project-serum/anchor";
+import { BN, BorshInstructionCoder, Idl, Program, Event } from "@project-serum/anchor";
 /**
  * MSP
  */
@@ -23,6 +23,8 @@ import { IDL, Msp } from './msp_idl_003'; // point to the latest IDL
 import { bs58 } from "@project-serum/anchor/dist/cjs/utils/bytes";
 import { AnchorProvider, Wallet } from "@project-serum/anchor/dist/cjs/provider";
 import { AccountLayout, ASSOCIATED_TOKEN_PROGRAM_ID, NATIVE_MINT, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+
+type StreamEventType = Event<Msp['events'][0]>;
 
 String.prototype.toPublicKey = function (): PublicKey {
   return new PublicKey(this.toString());
@@ -87,7 +89,7 @@ export const getStream = async (
       return null;
     }
 
-    const event: any = streamEventResponse.events[0].data;
+    const event: StreamEventType = streamEventResponse.events[0];
     let streamInfo = parseGetStreamData(
       event, 
       address, 
@@ -440,13 +442,13 @@ const getFilteredStreamAccounts = async (
  * @returns Stream
  */
 const parseGetStreamData = (
-  event: any,
+  eventRoot: StreamEventType,
   address: PublicKey,
   friendly: boolean = true
 
 ) => {
 
-  const nameBuffer = Buffer.from(event.name);
+  const event = eventRoot.data;
   const createdOnUtcInSeconds = event.createdOnUtc ? event.createdOnUtc.toNumber() : 0;
   const startUtcInSeconds = event.startUtc.toNumber();
   const effectiveCreatedOnUtcInSeconds = createdOnUtcInSeconds > 0 ? createdOnUtcInSeconds : event.startUtc.toNumber();
@@ -455,7 +457,7 @@ const parseGetStreamData = (
     id: friendly ? address.toBase58() : address,
     version: event.version,
     initialized: event.initialized,
-    name: new TextDecoder().decode(nameBuffer),
+    name: event.name,
     startUtc: !friendly ? new Date(startUtcInSeconds * 1000).toString() : new Date(startUtcInSeconds * 1000),
     treasurer: friendly ? event.treasurerAddress.toBase58() : event.treasurerAddress,
     treasury: friendly ? event.treasuryAddress.toBase58() : event.treasuryAddress,
